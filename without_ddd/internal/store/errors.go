@@ -2,16 +2,20 @@ package store
 
 type ReleaseError struct {
 	message             string
-	UnavailableProducts []*Product
+	unavailableProducts []*Product
 }
 
 func NewReleaseError(message string, unavailableProducts []*Product) *ReleaseError {
 	return &ReleaseError{
 		message:             message,
-		UnavailableProducts: unavailableProducts,
+		unavailableProducts: unavailableProducts,
 	}
 }
 
 func (e *ReleaseError) Error() string {
 	return e.message
+}
+
+func (e *ReleaseError) UnavailableProducts() []*Product {
+	return e.unavailableProducts
 }

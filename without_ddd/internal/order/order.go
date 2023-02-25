@@ -1,7 +1,7 @@
 package order
 
 import (
-	"github.com/google/uuid"
+	"github.com/vklap/go-ddd-demo/without_ddd/internal/order/status"
 	"time"
 )
 
@@ -9,7 +9,6 @@ type Order struct {
 	ID         string
 	Items      []*Item
 	CustomerID string
-	CartID     string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }
@@ -19,9 +18,10 @@ type Item struct {
 	ProductPrice       int
 	Quantity           int
 	DiscountPercentage int
+	Status             string
 }
 
-func New(cart *Cart) *Order {
+func NewOrder(cart *Cart) *Order {
 	now := time.Now().UTC()
 	items := make([]*Item, 0, len(cart.Items))
 	for _, cartItem := range cart.Items {
@@ -30,16 +30,20 @@ func New(cart *Cart) *Order {
 			ProductPrice:       cartItem.ProductPrice,
 			Quantity:           cartItem.Quantity,
 			DiscountPercentage: cartItem.DiscountPercentage,
+			Status:             status.FromCart,
 		}
 		items = append(items, item)
 	}
 	order := &Order{
-		ID:         uuid.NewString(),
+		ID:         cart.ID,
 		CustomerID: cart.CustomerID,
-		CartID:     cart.ID,
 		Items:      items,
 		CreatedAt:  now,
 		UpdatedAt:  now,
 	}
 	return order
+}
+
+func (o *Order) Validate() error {
+	return nil
 }

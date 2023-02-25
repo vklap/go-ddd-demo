@@ -8,14 +8,10 @@ type InMemoryStore struct {
 	productsById map[string]*Product
 }
 
-func NewStore(products []*Product) *InMemoryStore {
-	store := &InMemoryStore{
+func NewStore() *InMemoryStore {
+	return &InMemoryStore{
 		productsById: map[string]*Product{},
 	}
-	for _, p := range products {
-		store.productsById[p.ID] = p
-	}
-	return store
 }
 
 func (s *InMemoryStore) Release(ctx context.Context, products []*Product) error {

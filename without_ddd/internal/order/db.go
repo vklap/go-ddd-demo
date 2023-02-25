@@ -5,26 +5,26 @@ import (
 	"fmt"
 )
 
-type InMemoryDB struct {
-	orders []*Order
+type InMemoryOrderDB struct {
+	ordersById     map[string]*Order
+	ordersByCartId map[string]*Order
 }
 
-func (db *InMemoryDB) GetById(ctx context.Context, ID string) (*Order, error) {
-	for _, order := range db.orders {
-		if order.ID == ID {
-			return order, nil
-		}
+func NewOrderDB() *InMemoryOrderDB {
+	return &InMemoryOrderDB{
+		ordersById: map[string]*Order{},
 	}
-	return nil, fmt.Errorf("order with ID %q does not exist", ID)
 }
 
-func (db *InMemoryDB) Save(ctx context.Context, order *Order) error {
-	for i, o := range db.orders {
-		if o.CartID == order.CartID {
-			db.orders[i] = order
-			return nil
-		}
+func (db *InMemoryOrderDB) GetById(ctx context.Context, ID string) (*Order, error) {
+	order, ok := db.ordersById[ID]
+	if !ok {
+		return nil, fmt.Errorf("order with ID %q does not exist", ID)
 	}
-	db.orders = append(db.orders, order)
+	return order, nil
+}
+
+func (db *InMemoryOrderDB) Save(ctx context.Context, order *Order) error {
+	db.ordersById[order.ID] = order
 	return nil
 }
