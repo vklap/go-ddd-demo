@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	"errors"
+	"github.com/vklap/go-ddd-demo/without_ddd/internal/order/status"
 	"github.com/vklap/go-ddd-demo/without_ddd/internal/store"
 )
 
@@ -43,10 +44,16 @@ func (s *Service) CreateOrder(ctx context.Context, cart *Cart) (*Order, error) {
 		var releaseError *store.ReleaseError
 		if errors.As(err, &releaseError) {
 			itemsByProductID := map[string]*Item{}
-			productsBytID := map[string]*store.Product{}
+			for _, item := range order.Items {
+				item.Status = status.ReleasedFromStore
+				itemsByProductID[item.ProductID] = item
+			}
+			for _, product := range releaseError.UnavailableProducts() {
+				itemsByProductID[product.ID].Status = status.OutOfStock
+			}
 		} else {
 			return nil, err
 		}
 	}
-
+	return order, nil
 }
